@@ -178,20 +178,17 @@ function extractToolInvocations(text) {
 
 async function executeLlmCall(conversation) {
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gemini-2.0-flash",
-          messages: conversation,
-        }),
+    const response = await fetch(`${process.env.API_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.API_KEY}`,
       },
-    );
+      body: JSON.stringify({
+        model: process.env.MODEL,
+        messages: conversation,
+      }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -208,8 +205,8 @@ async function executeLlmCall(conversation) {
 }
 
 async function runCodingAgentLoop() {
-  if (!process.env.API_KEY) {
-    console.error("Error: API_KEY environment variable is not defined.");
+  if (!process.env.API_KEY || !process.env.API_URL || !process.env.MODEL) {
+    console.error("Error: API_KEY, API_URL, and MODEL environment variables must be defined.");
     process.exit(1);
   }
 
